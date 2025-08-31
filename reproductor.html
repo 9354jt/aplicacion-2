@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Radio Virtual Jireh</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      font-family: 'Arial', sans-serif;
+      color: white;
+      text-align: center;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .container {
+      padding: 20px;
+    }
+    h1 {
+      font-size: 1.5em;
+      margin-bottom: 10px;
+      text-shadow: 0 0 5px rgba(0,0,0,0.5);
+    }
+    .verse {
+      font-style: italic;
+      margin: 15px 0;
+      font-size: 1em;
+    }
+    .play-btn {
+      background: #FFD700;
+      color: #1e3c72;
+      border: none;
+      padding: 15px 30px;
+      font-size: 1.2em;
+      border-radius: 30px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transition: 0.3s;
+    }
+    .play-btn:hover {
+      background: #FFC107;
+      transform: scale(1.05);
+    }
+    canvas {
+      width: 90%;
+      height: 100px;
+      margin: 20px auto;
+      display: block;
+      background: rgba(0,0,0,0.2);
+      border-radius: 10px;
+    }
+    .status {
+      margin-top: 10px;
+      font-size: 0.9em;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📻 Radio Virtual Jireh</h1>
+    <p class="verse">“Canten salmos, himnos y cánticos espirituales… dando gracias siempre a Dios.” – Efesios 5:19</p>
+
+    <button id="playPause" class="play-btn">▶️ Escuchar Ahora</button>
+    <p class="status" id="status">Listo para alabanza</p>
+    <canvas id="visualizer"></canvas>
+  </div>
+
+  <audio id="audio" src="https://stream.zeno.fm/fmppcr6a95quv"></audio>
+
+  <script>
+    const audio = document.getElementById('audio');
+    const playPauseBtn = document.getElementById('playPause');
+    const status = document.getElementById('status');
+    const canvas = document.getElementById('visualizer');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = 300;
+    canvas.height = 80;
+
+    let isPlaying = false;
+
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const source = audioContext.createMediaElementSource(audio);
+    const analyser = audioContext.createAnalyser();
+    source.connect(analyser);
+    analyser.connect(audioContext.destination);
+    analyser.fftSize = 64;
+
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    playPauseBtn.addEventListener('click', () => {
+      if (isPlaying) {
+        audio.pause();
+        playPauseBtn.textContent = '▶️ Escuchar Ahora';
+        status.textContent = 'Pausado';
+        isPlaying = false;
+      } else {
+        audio.play().then(() => {
+          playPauseBtn.textContent = '⏸️ Escuchando...';
+          status.textContent = 'Transmitiendo en vivo';
+          isPlaying = true;
+          if (audioContext.state === 'suspended') {
+            audioContext.resume();
+          }
+          draw();
+        }).catch(err => {
+          status.textContent = 'Toca para permitir audio';
+          console.error(err);
+        });
+      }
+    });
+
+    function draw() {
+      if (!isPlaying) return;
+      requestAnimationFrame(draw);
+      analyser.getByteFrequencyData(dataArray);
+
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const barWidth = (canvas.width / bufferLength) * 2.5;
+      let x = 0;
+
+      for (let i = 0; i < bufferLength; i++) {
+        const barHeight = dataArray[i] / 255 * canvas.height * 0.8;
+        const hue = 200 + (i * 2) % 180;
+        ctx.fillStyle = `hsl(${hue}, 70%, 60%)`;
+        ctx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
+        x += barWidth;
+      }
+    }
+  </script>
+</body>
+</html>
