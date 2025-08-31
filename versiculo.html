@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Versículo del Día</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      background: #1e3c72;
+      color: white;
+      padding: 20px;
+      margin: 0;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .verse {
+      font-size: 1.1em;
+      line-height: 1.5;
+    }
+    .reference {
+      font-style: italic;
+      font-size: 0.9em;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="content">
+    <p class="verse" id="verse">Cargando versículo...</p>
+    <p class="reference" id="reference"></p>
+  </div>
+
+  <script>
+    const versiculos = [
+      "Clamen al Señor, todos los rincones de la tierra. – Isaías 45:22",
+      "Tu palabra es una lámpara a mis pies; es una luz en mi camino. – Salmo 119:105",
+      "Venid a mí todos los que estáis cansados... y yo os haré descansar. – Mateo 11:28",
+      "Dios es nuestro refugio y fortaleza. – Salmo 46:1",
+      "Encomienda a Jehová tus obras, y tus pensamientos serán establecidos. – Proverbios 16:3",
+      "El Señor es mi pastor, nada me faltará. – Salmo 23:1",
+      "Todo lo puedo en Cristo que me fortalece. – Filipenses 4:13"
+    ];
+
+    const hoy = new Date().getDate();
+    const indice = (hoy - 1) % versiculos.length;
+    const v = versiculos[indice];
+    const partes = v.split(' – ');
+
+    document.getElementById("verse").textContent = partes[0];
+    document.getElementById("reference").textContent = '– ' + partes[1];
+  </script>
+</body>
+</html>
